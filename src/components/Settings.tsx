@@ -47,7 +47,13 @@ function Settins({
     amountOfUnDisappearingCells:null
   });
   const [formData, setFormData] = useState(settings);
-  const {register, handleSubmit, watch, formState:{errors}}=useForm<FormValues>()
+  const {register, handleSubmit, watch, formState:{errors}}=useForm<FormValues>({
+    defaultValues:settings
+  })
+  const watchedBoardSize=watch("boardSize");
+  const watchedWinCombinationLength=watch("winCombinationLength");
+  const watchedAmountOfUnDisappearingCells=watch("amountOfUnDisappearingCells");
+  const watchedEnableDisappearingMode=watch("enableDisappearingMode");
   // const [elBoard, setElBoard] = useState<number>();
   // const [elLeng, setElLeng] = useState<number>();
 
@@ -86,30 +92,33 @@ function Settins({
     <form onSubmit={handleSubmit((data)=>{
       console.log(data)
       setSettings(data)
+       setTurnHistory([]);
     })}>
       <label className="inp" htmlFor="check">
         {" "}
         Turn disappearing:
         <input
-          className="check"
-          onChange={() => {
-            check();
-          }}
-          checked={settings.enableDisappearingMode}
-          type="checkbox"
-          name=""
-          id="check"
+
+           className="check"
+          // onChange={() => {
+          //   check();
+          // }}
+           //checked={settings.enableDisappearingMode}
+           type="checkbox"
+          // name=""
+          // id="check"
+          {...register("enableDisappearingMode")}
         />
       </label>
-      {settings.enableDisappearingMode && (
+      {watchedEnableDisappearingMode && (
         <label className="inpP" htmlFor="inpAm">
           Amount:
           <input
             // id="inpAm"
-            // min={formData.winCombinationLength+formData.winCombinationLength-1}
-            // max={formData.boardSize+formData.boardSize-1}
+            min={watchedWinCombinationLength*2-1}
+            max={watchedBoardSize*watchedBoardSize-1}
             // className="setInputs"
-            // type="number"
+            type="number"
             // placeholder="Write ..."
             // onChange={(el) => {
             //   //setElBoard(Number(el.target.value));
@@ -118,21 +127,30 @@ function Settins({
             //     amountOfUnDisappearingCells: Number(el.target.value),
             //   }));
             // }}
-            {...register("amountOfUnDisappearingCells")}
+            {...register("amountOfUnDisappearingCells",{min:{
+              value:watchedWinCombinationLength*2-1,
+              message:"Кількість висвітлюваних клітинок не може бути  менша за довжину комбінації"
+            },
+          max:{
+              value:watchedBoardSize*watchedBoardSize-1,
+              message:"Кількість висвітлюваних клітинок не може бути не може бути більшою за розмір доски "
+            }})}
           />
         </label>
 
       )}
-       {(isCorrect.amountOfUnDisappearingCells&&settings.enableDisappearingMode) && <p className="inf">{isCorrect.amountOfUnDisappearingCells}</p>}
+        <p className="inf">{typeof errors.amountOfUnDisappearingCells?.message === "string" &&
+    errors.amountOfUnDisappearingCells.message}</p>
+      {/* {(isCorrect.amountOfUnDisappearingCells&&settings.enableDisappearingMode) && <p className="inf">{isCorrect.amountOfUnDisappearingCells}</p>} */}
 
       <label className="inpP" htmlFor="inpBoard">
         Board size:
         <input
           // id="inpBoard"
-          // min={1}
-          // max={10}
+          min={3}
+          max={10}
           // className="setInputs"
-          // type="number"
+          type="number"
           // placeholder="Write board size"
           // onChange={(el) => {
           //   //setElBoard(Number(el.target.value));
@@ -153,17 +171,17 @@ function Settins({
       {/* {isCorrect.boardSize && <p className="inf">{isCorrect.boardSize}</p>} */}
 
       {/* {elLeng&&elLeng>10?<p>"Error"</p>:""} */}
-       <p>{typeof errors.boardSize?.message === "string" &&
+       <p className="inf"> {typeof errors.boardSize?.message === "string" &&
     errors.boardSize.message}</p>
 
       <label className="inpP" htmlFor="inpLen">
         Lenght:
         <input
           id="inpLen"
-          // min={1}
-          // max={formData.boardSize}
+          min={3}
+          max={watchedBoardSize}
           // className="setInputs"
-          // type="number"
+          type="number"
           // placeholder="Write winner combination lenght"
           // onChange={(el) => {
           //   //setElLeng(Number(el.target.value));
@@ -177,13 +195,13 @@ function Settins({
             value:3,
             message:"Довжина комбінації для виграшу не може бути  менша за 3"
           }, max:{
-            value:watch("boardSize"),
+            value:watchedBoardSize,
             message:"Довжина комбінації для виграшу не може бути більшою за розмір доски"
           }})}
         />
       </label>
       {/* {isCorrect.winCombinationLength && <p className="inf">{}</p>} */}
-      <p>{typeof errors.winCombinationLength?.message === "string" &&
+      <p className="inf">{typeof errors.winCombinationLength?.message === "string" &&
     errors.winCombinationLength.message}</p>
       {}
 
